@@ -8,4 +8,4 @@ coverage
 dist
 compiled
 .awcache
-.rptcache/*
+.rpt2_cache

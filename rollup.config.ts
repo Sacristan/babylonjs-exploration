@@ -9,7 +9,7 @@ const pkg = require('./package.json')
 const libraryName = 'babylon-exploration'
 
 export default {
-  input: `src/${libraryName}.ts`,
+  input: `src/index.ts`,
   output: [
     { file: pkg.main, name: camelCase(libraryName), format: 'umd' },
     { file: pkg.module, format: 'es' },

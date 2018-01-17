@@ -877,6 +877,12 @@ babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
 
+babylonjs@^3.2.0-alpha4:
+  version "3.2.0-alpha4"
+  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-3.2.0-alpha4.tgz#a0fd39442e6106d6034c672940ee6462135f4ff2"
+  dependencies:
+    cannon "0.6.2"
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
@@ -1017,6 +1023,10 @@ camelcase@^4.0.0, camelcase@^4.1.0:
 caniuse-lite@^1.0.30000792:
   version "1.0.30000792"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000792.tgz#d0cea981f8118f3961471afbb43c9a1e5bbf0332"
+
+cannon@0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/cannon/-/cannon-0.6.2.tgz#1e7bc72dd5841982f3c104c2bc578bfa4fb1c572"
 
 capture-stack-trace@^1.0.0:
   version "1.0.0"
