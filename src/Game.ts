@@ -1,5 +1,5 @@
 import * as BABYLON from 'babylonjs'
-import { Vector3 } from 'babylonjs'
+import { Vector3, Mesh } from 'babylonjs'
 
 class Game {
   private _canvas: HTMLCanvasElement
@@ -27,13 +27,6 @@ class Game {
     this._camera.setTarget(BABYLON.Vector3.Zero())
     this._camera.attachControl(this._canvas, false)
 
-    this._light = new BABYLON.DirectionalLight(
-      'DirectionalLight',
-      new Vector3(0, -1, 0),
-      this._scene
-    )
-    new BABYLON.SpotLight('spotLight', camPos, new BABYLON.Vector3(0, 0, -1), 10, 1, this._scene)
-
     BABYLON.SceneLoader.Append(
       '',
       '../assets/unity_export/clockScene.babylon',
@@ -41,18 +34,33 @@ class Game {
       scene => {
         scene.executeWhenReady(function() {
           console.log('Loading Done')
+
+          for (let mesh of scene.meshes) {
+            if (mesh.material) {
+              let mat: BABYLON.StandardMaterial = mesh.material as BABYLON.StandardMaterial
+              mat.emissiveColor = new BABYLON.Color3(1, 1, 1)
+
+              console.log(mat.name)
+            }
+          }
         })
       }
     )
+
+    // let sphere = BABYLON.MeshBuilder.CreateSphere(
+    //   'sphere1',
+    //   { segments: 16, diameter: 0.1 },
+    //   this._scene
+    // )
+
+    // sphere.position = new Vector3(-1, 0, 0)
   }
 
   doRender(): void {
-    // run the render loop
     this._engine.runRenderLoop(() => {
       this._scene.render()
     })
 
-    // the canvas/window resize event handler
     window.addEventListener('resize', () => {
       this._engine.resize()
     })
