@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs'
+import { Vector3 } from 'babylonjs'
 
 class Game {
   private _canvas: HTMLCanvasElement
@@ -14,36 +15,34 @@ class Game {
   }
 
   createScene(): void {
-    // create a basic BJS Scene object
+    var camPos: BABYLON.Vector3 = new BABYLON.Vector3(0, 0.5, 1.5)
+
     this._scene = new BABYLON.Scene(this._engine)
+    this._camera = new BABYLON.FreeCamera('camera1', camPos, this._scene)
 
-    // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-    this._camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), this._scene)
+    //Near / Far Clipping Planes
+    this._camera.minZ = 0.3
+    this._camera.maxZ = 100
 
-    // target the camera to scene origin
     this._camera.setTarget(BABYLON.Vector3.Zero())
-
-    // attach the camera to the canvas
     this._camera.attachControl(this._canvas, false)
 
-    // create a basic light, aiming 0,1,0 - meaning, to the sky
-    this._light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), this._scene)
-
-    // create a built-in "sphere" shape; with 16 segments and diameter of 2
-    let sphere = BABYLON.MeshBuilder.CreateSphere(
-      'sphere1',
-      { segments: 16, diameter: 2 },
+    this._light = new BABYLON.DirectionalLight(
+      'DirectionalLight',
+      new Vector3(0, -1, 0),
       this._scene
     )
+    new BABYLON.SpotLight('spotLight', camPos, new BABYLON.Vector3(0, 0, -1), 10, 1, this._scene)
 
-    // move the sphere upward 1/2 of its height
-    sphere.position.y = 1
-
-    // create a built-in "ground" shape
-    let ground = BABYLON.MeshBuilder.CreateGround(
-      'ground1',
-      { width: 6, height: 6, subdivisions: 2 },
-      this._scene
+    BABYLON.SceneLoader.Append(
+      '',
+      '../assets/unity_export/clockScene.babylon',
+      this._scene,
+      scene => {
+        scene.executeWhenReady(function() {
+          console.log('Loading Done')
+        })
+      }
     )
   }
 

@@ -10,5 +10,3 @@ window.addEventListener('DOMContentLoaded', () => {
   // start animation
   game.doRender()
 })
-
-export const x = 'data'
