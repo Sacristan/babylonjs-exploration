@@ -1,9 +1,8 @@
 import * as BABYLON from 'babylonjs' //remove
-import { Vector3, Mesh, Scene } from 'babylonjs'
 
 const animate = (
-  mesh: Mesh,
-  scene: Scene,
+  mesh: BABYLON.Mesh,
+  scene: BABYLON.Scene,
   time: number,
   propertyName: string,
   endFramePropertyValue: number,
@@ -44,11 +43,11 @@ const animate = (
   scene.beginAnimation(mesh, 0, totalFrames, false, undefined, onAnimationEnd)
 }
 
-const animateDoor = (door: Mesh, scene: Scene): void => {
+const animateDoor = (door: BABYLON.Mesh, scene: BABYLON.Scene): void => {
   animate(door, scene, 3, 'rotation.y', -155 * 0.0174533)
 }
 
-const animateKey = (key: Mesh, scene: Scene, onAnimationEnd?: () => void): void => {
+const animateKey = (key: BABYLON.Mesh, scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
   animate(key, scene, 2, 'rotation.z', Math.PI * 2, onAnimationEnd)
 }
 
@@ -70,11 +69,20 @@ class Game {
 
     var camPos: BABYLON.Vector3 = new BABYLON.Vector3(0, 0.5, 1.5)
 
-    let freeCam: BABYLON.FreeCamera = new BABYLON.FreeCamera('camera1', camPos, this._scene)
-    freeCam.setTarget(BABYLON.Vector3.Zero())
-    this._camera = freeCam as BABYLON.Camera
+    // let freeCam: BABYLON.FreeCamera = new BABYLON.FreeCamera('camera1', camPos, this._scene)
+    // freeCam.setTarget(BABYLON.Vector3.Zero())
 
-    // this._camera = new BABYLON.ArcRotateCamera("arcCamera", 1, 2, 30, Vector3.Zero(), this._scene)
+    let cam = new BABYLON.ArcRotateCamera(
+      'arcCamera',
+      0,
+      0,
+      10,
+      BABYLON.Vector3.Zero(),
+      this._scene
+    )
+    cam.setPosition(camPos)
+
+    this._camera = cam as BABYLON.Camera
 
     //Near / Far Clipping Planes
     this._camera.minZ = 0.3
