@@ -6,7 +6,8 @@ const animate = (
   scene: Scene,
   time: number,
   propertyName: string,
-  endFramePropertyValue: number
+  endFramePropertyValue: number,
+  onAnimationEnd?: () => void
 ) => {
   const fps: number = 30
   const totalFrames = fps * time
@@ -40,15 +41,15 @@ const animate = (
   mesh.animations = []
   mesh.animations.push(animation)
 
-  scene.beginAnimation(mesh, 0, totalFrames, false)
+  scene.beginAnimation(mesh, 0, totalFrames, false, undefined, onAnimationEnd)
 }
 
 const animateDoor = (door: Mesh, scene: Scene): void => {
   animate(door, scene, 3, 'rotation.y', -155 * 0.0174533)
 }
 
-const animateKey = (key: Mesh, scene: Scene): void => {
-  animate(key, scene, 2, 'rotation.z', Math.PI * 2)
+const animateKey = (key: Mesh, scene: Scene, onAnimationEnd?: () => void): void => {
+  animate(key, scene, 2, 'rotation.z', Math.PI * 2, onAnimationEnd)
 }
 
 class Game {
@@ -107,7 +108,8 @@ class Game {
           }
 
           setTimeout(() => {
-            animateKey(key, scene)
+            animateKey(key, scene, () => animateDoor(door, scene))
+            // animateDoor(door, scene)
           }, 1000)
 
           // animateKey(key, scene)
