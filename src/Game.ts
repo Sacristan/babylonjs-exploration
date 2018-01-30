@@ -15,12 +15,15 @@ class Game {
   private door: BABYLON.Mesh
   private mask: BABYLON.Mesh
   private bird: BABYLON.Mesh
+  private controller_mesh: BABYLON.Mesh
+
   private music: BABYLON.Sound
 
   constructor(canvasElement: string) {
     // Create canvas and engine
     this._canvas = document.getElementById(canvasElement) as HTMLCanvasElement
     this._engine = new BABYLON.Engine(this._canvas, true)
+    this.experienceInProgress = false
   }
 
   animate(
@@ -71,11 +74,11 @@ class Game {
   openDoor(onAnimationEnd?: () => void): void {
     this.animate(this.door, 3, 'rotation.y', 0, doorOpenRotationY, onAnimationEnd)
     this.music.play()
-    this.music.onended = () => this.closeDoor()
+    this.music.onended = () => this.closeDoor(() => this.enableControls())
   }
 
-  closeDoor(): void {
-    this.animate(this.door, 3, 'rotation.y', doorOpenRotationY, 0)
+  closeDoor(onAnimationEnd?: () => void): void {
+    this.animate(this.door, 3, 'rotation.y', doorOpenRotationY, 0, onAnimationEnd)
   }
 
   turnKey(onAnimationEnd?: () => void): void {
@@ -83,15 +86,23 @@ class Game {
   }
 
   startExperience(): void {
-    setTimeout(() => {
-      this.turnKey(() => this.openDoor(() => this.animateBird()))
-    }, 1000)
+    this.turnKey(() => this.openDoor(() => this.animateBird()))
+  }
+
+  enableControls(): void {
+    if (!this.controller_mesh.actionManager)
+      this.controller_mesh.actionManager = new BABYLON.ActionManager(this._scene)
+
+    this.controller_mesh.actionManager.registerAction(
+      new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
+        if (this.controller_mesh.actionManager) this.controller_mesh.actionManager.actions = []
+        this.startExperience()
+      })
+    )
   }
 
   sceneReady(): void {
     for (let mesh of this._scene.meshes) {
-      console.log(mesh.name)
-
       switch (mesh.name) {
         case 'key':
           this.key = mesh as BABYLON.Mesh
@@ -108,6 +119,16 @@ class Game {
           break
       }
 
+      this.controller_mesh = BABYLON.MeshBuilder.CreateBox(
+        'box',
+        { width: 0.5, height: 0.75, depth: 0.25 },
+        this._scene
+      )
+      let mat = new BABYLON.StandardMaterial('boxMat', this._scene)
+      mat.alpha = 0
+
+      this.controller_mesh.material = mat
+
       if (mesh.material) {
         let mat: BABYLON.StandardMaterial = mesh.material as BABYLON.StandardMaterial
         mat.emissiveColor = new BABYLON.Color3(1, 1, 1)
@@ -121,7 +142,7 @@ class Game {
       'Music',
       '../assets/audio/day1.mp3',
       this._scene,
-      () => this.startExperience(),
+      () => this.enableControls(),
       { loop: false, autoplay: false }
     )
   }
