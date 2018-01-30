@@ -2,6 +2,13 @@ import * as BABYLON from 'babylonjs' //remove
 
 const degreesToRadians: number = 0.0174533
 const birdStartRotationX: number = -90 * degreesToRadians
+const doorOpenRotationY: number = -155 * degreesToRadians
+
+let key: BABYLON.Mesh
+let door: BABYLON.Mesh
+let mask: BABYLON.Mesh
+let bird: BABYLON.Mesh
+let music: BABYLON.Sound
 
 const animate = (
   mesh: BABYLON.Mesh,
@@ -45,24 +52,27 @@ const animate = (
   scene.beginAnimation(mesh, 0, totalFrames, false, undefined, onAnimationEnd)
 }
 
-const aniomateBird = (
-  bird: BABYLON.Mesh,
-  scene: BABYLON.Scene,
-  onAnimationEnd?: () => void
-): void => {
+const animateBird = (scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
   animate(bird, scene, 2, 'rotation.x', birdStartRotationX, 0, onAnimationEnd)
 }
 
-const animateDoor = (
-  door: BABYLON.Mesh,
-  scene: BABYLON.Scene,
-  onAnimationEnd?: () => void
-): void => {
-  animate(door, scene, 3, 'rotation.y', 0, -155 * degreesToRadians, onAnimationEnd)
+const openDoor = (scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
+  animate(door, scene, 3, 'rotation.y', 0, doorOpenRotationY, onAnimationEnd)
+  music.play()
+  music.onended = () => closeDoor(scene)
 }
 
-const animateKey = (key: BABYLON.Mesh, scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
+const closeDoor = (scene: BABYLON.Scene): void => {
+  animate(door, scene, 3, 'rotation.y', doorOpenRotationY, 0)
+}
+
+const turnKey = (scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
   animate(key, scene, 2, 'rotation.z', 0, Math.PI * 2, onAnimationEnd)
+}
+const experience = (scene: BABYLON.Scene): void => {
+  setTimeout(() => {
+    turnKey(scene, () => openDoor(scene, () => animateBird(scene)))
+  }, 1000)
 }
 
 class Game {
@@ -100,7 +110,7 @@ class Game {
 
     //Near / Far Clipping Planes
     this._camera.minZ = 0.3
-    this._camera.maxZ = 8
+    this._camera.maxZ = 200
 
     this._camera.attachControl(this._canvas, false)
 
@@ -110,10 +120,10 @@ class Game {
       this._scene,
       scene => {
         scene.executeWhenReady(function() {
-          let key: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
-          let door: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
-          let mask: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
-          let bird: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
+          // key = new BABYLON.Mesh('dummyMesh')
+          // door = new BABYLON.Mesh('dummyMesh')
+          // mask = new BABYLON.Mesh('dummyMesh')
+          // bird = new BABYLON.Mesh('dummyMesh')
 
           for (let mesh of scene.meshes) {
             console.log(mesh.name)
@@ -143,13 +153,13 @@ class Game {
           let mat: BABYLON.StandardMaterial = mask.material as BABYLON.StandardMaterial
           mat.alpha = 0
 
-          setTimeout(() => {
-            animateKey(key, scene, () => animateDoor(door, scene, () => aniomateBird(bird, scene)))
-            // animateDoor(door, scene)
-          }, 1000)
-
-          // animateKey(key, scene)
-          // animateDoor(door, scene)
+          music = new BABYLON.Sound(
+            'Music',
+            '../assets/audio/day1.mp3',
+            scene,
+            () => experience(scene),
+            { loop: false, autoplay: false }
+          )
         })
       }
     )
