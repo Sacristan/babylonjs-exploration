@@ -1,17 +1,21 @@
 import * as BABYLON from 'babylonjs' //remove
 
+const degreesToRadians: number = 0.0174533
+const birdStartRotationX: number = -90 * degreesToRadians
+
 const animate = (
   mesh: BABYLON.Mesh,
   scene: BABYLON.Scene,
   time: number,
   propertyName: string,
+  startFramePropertyValue: number,
   endFramePropertyValue: number,
   onAnimationEnd?: () => void
 ) => {
   const fps: number = 30
   const totalFrames = fps * time
 
-  var animation = new BABYLON.Animation(
+  const animation = new BABYLON.Animation(
     mesh + 'Animation',
     propertyName,
     fps,
@@ -19,36 +23,46 @@ const animate = (
     BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
   )
 
-  var easingFunction = new BABYLON.SineEase()
+  const easingFunction = new BABYLON.SineEase()
   easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT)
   animation.setEasingFunction(easingFunction)
 
-  var keys = []
-
-  keys.push({
-    frame: 0,
-    value: 0
-  })
-
-  keys.push({
-    frame: totalFrames,
-    value: endFramePropertyValue
-  })
+  const keys = [
+    {
+      frame: 0,
+      value: startFramePropertyValue
+    },
+    {
+      frame: totalFrames,
+      value: endFramePropertyValue
+    }
+  ]
 
   animation.setKeys(keys)
 
-  mesh.animations = []
-  mesh.animations.push(animation)
+  mesh.animations = [animation]
 
   scene.beginAnimation(mesh, 0, totalFrames, false, undefined, onAnimationEnd)
 }
 
-const animateDoor = (door: BABYLON.Mesh, scene: BABYLON.Scene): void => {
-  animate(door, scene, 3, 'rotation.y', -155 * 0.0174533)
+const aniomateBird = (
+  bird: BABYLON.Mesh,
+  scene: BABYLON.Scene,
+  onAnimationEnd?: () => void
+): void => {
+  animate(bird, scene, 2, 'rotation.x', birdStartRotationX, 0, onAnimationEnd)
+}
+
+const animateDoor = (
+  door: BABYLON.Mesh,
+  scene: BABYLON.Scene,
+  onAnimationEnd?: () => void
+): void => {
+  animate(door, scene, 3, 'rotation.y', 0, -155 * degreesToRadians, onAnimationEnd)
 }
 
 const animateKey = (key: BABYLON.Mesh, scene: BABYLON.Scene, onAnimationEnd?: () => void): void => {
-  animate(key, scene, 2, 'rotation.z', Math.PI * 2, onAnimationEnd)
+  animate(key, scene, 2, 'rotation.z', 0, Math.PI * 2, onAnimationEnd)
 }
 
 class Game {
@@ -96,16 +110,27 @@ class Game {
       this._scene,
       scene => {
         scene.executeWhenReady(function() {
-          var key: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
-          var door: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
+          let key: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
+          let door: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
+          let mask: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
+          let bird: BABYLON.Mesh = new BABYLON.Mesh('dummyMesh')
 
           for (let mesh of scene.meshes) {
+            console.log(mesh.name)
+
             switch (mesh.name) {
               case 'key':
                 key = mesh as BABYLON.Mesh
                 break
               case 'door_right':
                 door = mesh as BABYLON.Mesh
+                break
+              case 'mask':
+                mask = mesh as BABYLON.Mesh
+                break
+              case 'snowball':
+                bird = mesh as BABYLON.Mesh
+                bird.rotation.x = birdStartRotationX
                 break
             }
 
@@ -115,8 +140,11 @@ class Game {
             }
           }
 
+          let mat: BABYLON.StandardMaterial = mask.material as BABYLON.StandardMaterial
+          mat.alpha = 0
+
           setTimeout(() => {
-            animateKey(key, scene, () => animateDoor(door, scene))
+            animateKey(key, scene, () => animateDoor(door, scene, () => aniomateBird(bird, scene)))
             // animateDoor(door, scene)
           }, 1000)
 
