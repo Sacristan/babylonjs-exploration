@@ -23,7 +23,6 @@ class Game {
     // Create canvas and engine
     this._canvas = document.getElementById(canvasElement) as HTMLCanvasElement
     this._engine = new BABYLON.Engine(this._canvas, true)
-    this.experienceInProgress = false
   }
 
   animate(
