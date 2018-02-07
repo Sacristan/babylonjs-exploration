@@ -85,6 +85,7 @@ class Game {
   }
 
   startExperience(): void {
+    this.bird.rotation.x = birdStartRotationX
     this.turnKey(() => this.openDoor(() => this.animateBird()))
   }
 
