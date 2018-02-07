@@ -89,8 +89,9 @@ class Game {
   }
 
   enableControls(): void {
-    if (!this.controller_mesh.actionManager)
+    if (!this.controller_mesh.actionManager) {
       this.controller_mesh.actionManager = new BABYLON.ActionManager(this._scene)
+    }
 
     this.controller_mesh.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
@@ -100,33 +101,42 @@ class Game {
     )
   }
 
+  createController(): void {
+    this.controller_mesh = BABYLON.MeshBuilder.CreateBox(
+      'box',
+      { width: 0.5, height: 0.75, depth: 0.25 },
+      this._scene
+    )
+    let mat = new BABYLON.StandardMaterial('boxMat', this._scene)
+    mat.alpha = 0
+
+    this.controller_mesh.material = mat
+  }
+
   sceneReady(): void {
-    for (let mesh of this._scene.meshes) {
+    console.log('sceneReady')
+
+    this.createController()
+
+    for (var i = 0; i < this._scene.meshes.length; i++) {
+      let mesh: BABYLON.Mesh = this._scene.meshes[i] as BABYLON.Mesh
+      console.log(mesh.name)
+
       switch (mesh.name) {
         case 'key':
-          this.key = mesh as BABYLON.Mesh
+          this.key = mesh
           break
         case 'door_right':
-          this.door = mesh as BABYLON.Mesh
+          this.door = mesh
           break
         case 'mask':
-          this.mask = mesh as BABYLON.Mesh
+          this.mask = mesh
           break
         case 'snowball':
-          this.bird = mesh as BABYLON.Mesh
+          this.bird = mesh
           this.bird.rotation.x = birdStartRotationX
           break
       }
-
-      this.controller_mesh = BABYLON.MeshBuilder.CreateBox(
-        'box',
-        { width: 0.5, height: 0.75, depth: 0.25 },
-        this._scene
-      )
-      let mat = new BABYLON.StandardMaterial('boxMat', this._scene)
-      mat.alpha = 0
-
-      this.controller_mesh.material = mat
 
       if (mesh.material) {
         let mat: BABYLON.StandardMaterial = mesh.material as BABYLON.StandardMaterial
